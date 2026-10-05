@@ -41,7 +41,7 @@ Check with `claude mcp list` (the server shows `✓ Connected` once it answers t
 
 ### 2. As a plugin from this repository
 
-The repository is a Claude Code plugin (`.claude-plugin/plugin.json`, `.mcp.json`, a `kb` skill) and also a one-entry marketplace, so it installs directly:
+The repository is a Claude Code plugin (`.claude-plugin/plugin.json` with the MCP server declared inline, plus a `kb` skill) and also a one-entry marketplace, so it installs directly:
 
 ```bash
 claude plugin marketplace add jblenman/kb-mcp        # or the path of a local clone
@@ -52,7 +52,7 @@ The server then appears as `plugin:kb-mcp:kb`; tool names are `mcp__plugin_kb-mc
 
 - A marketplace added from a **local path** loads the plugin **in place** from that clone: `git pull` is the whole update. A marketplace added from a **GitHub or git URL** copies the plugin into `~/.claude/plugins/cache/`; `claude plugin update kb-mcp@kb-mcp` picks up new commits. (Verified on Claude Code 2.1.289: `claude plugin list` prints `Read from: <clone>` for the local-path case.)
 - Session-only trial, nothing installed: `claude --plugin-dir /path/to/kb-mcp`.
-- Interpreter: `.mcp.json` starts the server with `${KIT_PYTHON:-python3}`. Where `python3` is not on `PATH` (Windows), set `"env": {"KIT_PYTHON": "<interpreter>"}` in `~/.claude/settings.json` — a settings `env` value reaches a plugin's `.mcp.json` command. See [Windows notes](#windows-notes).
+- Interpreter: the plugin's server entry (`plugin.json` → `mcpServers`) starts the server with `${KIT_PYTHON:-python3}`. Where `python3` is not on `PATH` (Windows), set `"env": {"KIT_PYTHON": "<interpreter>"}` in `~/.claude/settings.json` — a settings `env` value reaches a plugin's `.mcp.json` command. See [Windows notes](#windows-notes).
 
 ### 3. From another marketplace
 
@@ -190,7 +190,7 @@ A `claude -p` run calls MCP tools only with an allow rule that names them; inter
 | Registration | Server name | Tool names | Allow rule (whole server) |
 |---|---|---|---|
 | `claude mcp add … kb-mcp …` | `kb-mcp` | `mcp__kb-mcp__kb_search` … | `mcp__kb-mcp` |
-| plugin `kb-mcp` (server key `kb` in `.mcp.json`) | `plugin:kb-mcp:kb` | `mcp__plugin_kb-mcp_kb__kb_search` … | `mcp__plugin_kb-mcp_kb` |
+| plugin `kb-mcp` (server key `kb` in `plugin.json`) | `plugin:kb-mcp:kb` | `mcp__plugin_kb-mcp_kb__kb_search` … | `mcp__plugin_kb-mcp_kb` |
 
 Single tools work too (`mcp__kb-mcp__kb_search mcp__kb-mcp__kb_status`). In `~/.claude/settings.json` the same strings go into `permissions.allow`. `--allowedTools` is variadic and swallows a trailing prompt, so put the prompt before it. Verified on CLI 2.1.289 with Haiku: both registrations, `kb_status` then `kb_search`, the top hit quoted correctly, about $0.06 and 6–7 s per run; the MCP tools were deferred, so the model's first turn was a `ToolSearch` that loaded them, which costs nothing to you.
 
@@ -226,10 +226,10 @@ Installed as a plugin: `claude plugin list` shows `kb-mcp@kb-mcp … enabled`; i
 
 ## Windows notes
 
-- **Interpreter.** There is no `python3` on `PATH` on a stock Windows Python. For `claude mcp add`, use `py` (the python.org launcher) or the full path of an interpreter. For the plugin, set the interpreter once in `~/.claude/settings.json`: `"env": {"KIT_PYTHON": "C:/Windows/py.exe"}` — settings `env` values reach the plugin's `.mcp.json` command (`${KIT_PYTHON:-python3}`). Forward slashes work everywhere Claude Code reads a path.
+- **Interpreter.** There is no `python3` on `PATH` on a stock Windows Python. For `claude mcp add`, use `py` (the python.org launcher) or the full path of an interpreter. For the plugin, set the interpreter once in `~/.claude/settings.json`: `"env": {"KIT_PYTHON": "C:/Windows/py.exe"}` — settings `env` values reach the plugin's server command (`${KIT_PYTHON:-python3}`). Forward slashes work everywhere Claude Code reads a path.
 - **Store / PyManager installs.** When `py`, `python3` and `python` are **app-execution aliases** under `%LOCALAPPDATA%\Microsoft\WindowsApps` (a Store or Python-install-manager install; `(Get-Item (where.exe py)).Attributes` shows `ReparsePoint`), the alias can be denied to other logon sessions — observed on Windows 11: from an SSH logon the aliases answered "Access is denied" while a desktop session used them. Do not put an alias into an MCP command or a hook. Use the launcher executable, a regular file that survives Python upgrades: `C:/Users/<you>/AppData/Local/Python/bin/python.exe` for a PyManager install, `C:/Windows/py.exe` for a classic python.org install. Never a versioned path such as `Python314/python.exe`.
 - **FTS5** is probed at runtime (`kb.py status` prints `fts5_available`); the Python BM25 fallback is automatic. Check with `py -c "import sqlite3; sqlite3.connect(':memory:').execute('create virtual table t using fts5(x)')"`.
-- **Encoding.** The CLI switches stdout to UTF-8; the MCP server talks bytes on stdin/stdout, so the console code page does not matter; `.mcp.json` sets `PYTHONIOENCODING`/`PYTHONUTF8` anyway. For `claude mcp add` you may add `-e PYTHONUTF8=1`.
+- **Encoding.** The CLI switches stdout to UTF-8; the MCP server talks bytes on stdin/stdout, so the console code page does not matter; the plugin's server entry sets `PYTHONIOENCODING`/`PYTHONUTF8` anyway. For `claude mcp add` you may add `-e PYTHONUTF8=1`.
 - **Paths** are stored posix-style with the drive letter (`C:/Users/<you>/notes/a.md`); the database is per machine, so nothing needs to be portable. Keep `index_path` on a local disk, not a synced folder.
 - **Signals.** Windows has no SIGINT/SIGTERM for a stdio child; a killed server leaves its lock to the PID check, which takes it over at the next run (the Windows-only test covers reused PIDs).
 - The suite's Windows-only test runs there; the POSIX signal test is skipped on Windows.

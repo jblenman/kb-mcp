@@ -11,7 +11,15 @@
       "source": ".",
       "description": "A local, private knowledge-base MCP server over your own folders of Markdown and text notes. Tools kb_search, kb_get, kb_recent, kb_reindex, kb_status over a SQLite index (BM25 via FTS5, optional Ollama embeddings, adaptive rank fusion) that refreshes itself. Stdlib Python 3.8+, nothing leaves the machine.",
       "category": "knowledge",
-      "tags": ["knowledge-base", "notes", "search", "rag", "mcp", "markdown", "obsidian"]
+      "tags": [
+        "knowledge-base",
+        "notes",
+        "search",
+        "rag",
+        "mcp",
+        "markdown",
+        "obsidian"
+      ]
     }
   ]
 }
