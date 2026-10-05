@@ -506,6 +506,26 @@ class IndexAndSearchTests(FixtureCase):
             self.assertEqual(res["hits"][0]["rel"], "beta.md")
             store2.close()
 
+    def test_get_refuses_symlink_to_prefix_sibling(self):
+        # A string-prefix containment check took `<root>-private/...` (reached through a symlink
+        # inside the corpus) for inside `<root>`; containment is now a path-boundary test and only
+        # enabled corpora define the boundary.
+        sibling = self.tmp / "corpus-private"
+        sibling.mkdir()
+        (sibling / "secret.md").write_text("# Secret\n\ndo not serve\n", encoding="utf-8")
+        link = self.root / "notes" / "link.md"
+        try:
+            link.symlink_to(sibling / "secret.md")
+        except (OSError, NotImplementedError):
+            self.skipTest("symlinks unavailable")
+        store = self.store()
+        fk.index(self.cfg, store, FakeEmbedder())
+        out = fk.get_section("notes:link.md", None, self.cfg, store)
+        self.assertIn("error", out)
+        self.assertIn("outside", out["error"])
+        self.assertNotIn("do not serve", out.get("text", ""))
+        store.close()
+
     def test_get_recent_status(self):
         store = self.store()
         fk.index(self.cfg, store, FakeEmbedder())

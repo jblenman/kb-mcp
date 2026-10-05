@@ -1590,6 +1590,16 @@ def format_hits(result: Dict[str, Any]) -> str:
 # Get / recent / status
 # ----------------------------------------------------------------------------
 
+def _inside(path: Path, root: Path) -> bool:
+    """Path-boundary containment: `/data/notes-private/x` is not inside `/data/notes`,
+    which a plain string-prefix check would accept (review finding, 2026-10-04)."""
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
 def get_section(spec: str, heading: Optional[str], cfg: Dict[str, Any], store: Store,
                 max_chars: int = 20000) -> Dict[str, Any]:
     """Read the live file (not the index) so the text is current; the index only resolves the path."""
@@ -1603,7 +1613,7 @@ def get_section(spec: str, heading: Optional[str], cfg: Dict[str, Any], store: S
     path = Path(row["path"])
     roots = []
     for c in corpora:
-        if c.root is not None:
+        if c.root is not None and c.enabled:      # a disabled corpus must not widen the boundary
             try:
                 roots.append(c.root.resolve())
             except OSError:
@@ -1612,7 +1622,7 @@ def get_section(spec: str, heading: Optional[str], cfg: Dict[str, Any], store: S
         resolved = path.resolve()
     except OSError:
         resolved = path
-    if not any(str(resolved).startswith(str(r)) for r in roots):
+    if not any(_inside(resolved, r) for r in roots):
         return {"error": "refusing to read outside the configured corpora: %s" % path}
     try:
         text = path.read_text(encoding="utf-8", errors="replace")

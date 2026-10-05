@@ -253,7 +253,7 @@ Installed as a plugin: `claude plugin list` shows `kb-mcp@kb-mcp … enabled`; i
 ## Tests
 
 ```bash
-python3 tests/test_kb_mcp.py          # 40 tests; passes on Python 3.13 and 3.9 (one Windows-only test skipped elsewhere)
+python3 tests/test_kb_mcp.py          # 41 tests; passes on Python 3.13 and 3.9 (one Windows-only test skipped elsewhere)
 ```
 
 Temporary fixture corpus, a fake embedder or a stub Ollama on 127.0.0.1 (no network): chunking with exact line ranges, fences, frontmatter, plain text; config resolution order and corpus forms; incremental skip / change / delete / corpus removal; lexical and hybrid search with adaptive weighting; embedder down, disabled, and recovering; the Python BM25 backend and a backend switch; `get` / `recent` / `status`; the MCP handshake (protocol echo and fallback, `server/discover`), `tools/list`, every tool via `tools/call`; the CLI and the stdio server as subprocesses; the lock (dead owner taken over at once, live owner respected, unwritten record respected until the age limit, takeover puts back a lock taken in between, release leaves a lock that is not ours, reused PID on Windows); cooperative stop (purges nothing, stays stale); the real server process during a background index (stdin closed → lock released and INFO kept out of stderr; killed → the next run takes the lock over; SIGINT then SIGTERM → exit 0 with the lock released).
