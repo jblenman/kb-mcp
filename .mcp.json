@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "kb": {
+      "command": "${KIT_PYTHON:-python3}",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/kb_mcp/mcp_server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1"
+      }
+    }
+  }
+}

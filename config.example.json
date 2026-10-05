@@ -1,0 +1,63 @@
+{
+  "_comment": "kb-mcp configuration. Copy to ~/.claude/kb-mcp/config.json (or run: python3 kb_mcp/kb.py config --init) and edit the corpora. Keys starting with _ are comments. Paths take ~ and environment variables. The file found is merged over the built-in defaults, so you may delete every key you do not change.",
+
+  "_corpora": "Each corpus is a folder (or a single file) of notes. name: letters, digits, . _ - (it prefixes every result as name:relative/path). path: the folder; a single file is allowed too. include: globs relative to the folder (default: **/*.md, **/*.markdown, **/*.txt). exclude: globs to skip. enabled: false keeps the entry but skips it.",
+  "corpora": [
+    {
+      "name": "notes",
+      "path": "~/notes",
+      "include": ["**/*.md", "**/*.txt"],
+      "exclude": ["drafts/**"],
+      "description": "my notes folder"
+    },
+    {
+      "name": "vault",
+      "path": "~/Documents/Obsidian/Vault",
+      "include": ["**/*.md"],
+      "exclude": ["templates/**", "**/.trash/**"],
+      "description": "an Obsidian vault",
+      "enabled": false
+    },
+    {
+      "name": "claude-memory",
+      "path": "~/.claude/projects",
+      "include": ["*/memory/**/*.md"],
+      "description": "Claude Code auto-memory folders (one per project)",
+      "enabled": false
+    }
+  ],
+
+  "_exclude_globs": "Skipped in every corpus.",
+  "exclude_globs": ["**/.git/**", "**/node_modules/**", "**/.obsidian/**", "**/.trash/**"],
+  "max_file_bytes": 2000000,
+
+  "_index_path": "The SQLite index. Keep it on a local disk under your home folder, never inside a notes folder, a repository or a cloud-synced folder.",
+  "index_path": "~/.claude/kb-mcp/index.sqlite",
+  "log_file": "~/.claude/kb-mcp/kb-mcp.log",
+
+  "_embedder": "Optional semantic lane: an Ollama endpoint serving an embedding model (ollama pull nomic-embed-text). enabled false = lexical search only, no network calls at all. doc_prefix/query_prefix null = the right prefixes for nomic-embed-text, none for other models.",
+  "embedder": {
+    "enabled": true,
+    "url": "http://127.0.0.1:11434",
+    "model": "nomic-embed-text",
+    "doc_prefix": null,
+    "query_prefix": null,
+    "batch_size": 32,
+    "timeout_s": 120,
+    "probe_timeout_s": 2,
+    "max_chars": 6000,
+    "num_ctx": 8192
+  },
+
+  "_chunking": "Sections become chunks: small neighbours merge up to target_words, sections above max_words split on paragraphs.",
+  "chunking": {"min_words": 60, "target_words": 500, "max_words": 800},
+
+  "_lexical": "auto = SQLite FTS5 when the interpreter has it, else a pure-Python BM25 over a postings table.",
+  "lexical": {"backend": "auto"},
+
+  "_search": "k results; pool/vec_pool = candidates per lane; rrf_k = reciprocal-rank-fusion constant; vec_weight_min..max = adaptive weight of the vector lane; max_per_file caps hits from one file.",
+  "search": {"k": 6, "pool": 40, "vec_pool": 20, "rrf_k": 20, "vec_weight_min": 0.2, "vec_weight_max": 1.0, "snippet_chars": 600, "max_per_file": 3},
+
+  "_freshness": "The MCP server re-indexes incrementally in the background when the last run is older than this many minutes.",
+  "freshness": {"auto_index_minutes": 30}
+}

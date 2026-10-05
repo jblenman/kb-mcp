@@ -1,0 +1,17 @@
+{
+  "name": "kb-mcp",
+  "owner": {
+    "name": "kb-mcp maintainers",
+    "url": "https://github.com/jblenman/kb-mcp"
+  },
+  "description": "The kb-mcp knowledge-base MCP server as a one-plugin marketplace: add this repository as a marketplace and install kb-mcp from it.",
+  "plugins": [
+    {
+      "name": "kb-mcp",
+      "source": ".",
+      "description": "A local, private knowledge-base MCP server over your own folders of Markdown and text notes. Tools kb_search, kb_get, kb_recent, kb_reindex, kb_status over a SQLite index (BM25 via FTS5, optional Ollama embeddings, adaptive rank fusion) that refreshes itself. Stdlib Python 3.8+, nothing leaves the machine.",
+      "category": "knowledge",
+      "tags": ["knowledge-base", "notes", "search", "rag", "mcp", "markdown", "obsidian"]
+    }
+  ]
+}

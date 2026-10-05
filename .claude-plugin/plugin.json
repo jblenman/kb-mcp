@@ -1,0 +1,25 @@
+{
+  "name": "kb-mcp",
+  "displayName": "Knowledge-base search (kb-mcp)",
+  "version": "1.0.0",
+  "description": "A local, private knowledge-base MCP server over your own folders of Markdown and text notes. Tools kb_search, kb_get, kb_recent, kb_reindex, kb_status over a SQLite index (BM25 via FTS5, optional Ollama embeddings, adaptive rank fusion) that refreshes itself. Stdlib Python 3.8+, nothing leaves the machine.",
+  "author": {
+    "name": "kb-mcp maintainers",
+    "url": "https://github.com/jblenman/kb-mcp"
+  },
+  "homepage": "https://github.com/jblenman/kb-mcp",
+  "repository": "https://github.com/jblenman/kb-mcp",
+  "license": "MIT",
+  "keywords": [
+    "knowledge-base",
+    "notes",
+    "search",
+    "rag",
+    "mcp",
+    "markdown",
+    "obsidian",
+    "sqlite",
+    "fts5",
+    "ollama"
+  ]
+}
